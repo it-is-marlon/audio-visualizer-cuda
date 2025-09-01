@@ -1,0 +1,7 @@
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/glad-generate-files.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/glad.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/edit_cache.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/rebuild_cache.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/list_install_components.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/install.dir
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/CMakeFiles/install/local.dir

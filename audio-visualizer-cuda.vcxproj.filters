@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="fft_visualizer.cu">
+      <Filter>cu</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="cpp">
+      <UniqueIdentifier>{da79209c-d2c7-4b77-a8ab-ece625a54653}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="h">
+      <UniqueIdentifier>{3823ce7c-4f22-454a-b479-3c98d4638877}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cu">
+      <UniqueIdentifier>{ac191497-7dd7-45ce-9045-17775ca1c062}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+    <ClCompile Include="audio_capture.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="audio_capture.h">
+      <Filter>h</Filter>
+    </ClInclude>
+    <ClInclude Include="fft_visualizer.h">
+      <Filter>h</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+# ninja log v6
+8	523	7783927554252012	include/glad/glad.h	150d7228ace9f05
+8	523	7783927554252012	src/glad.c	150d7228ace9f05
+8	523	7783927554252012	C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-rel/include/glad/glad.h	150d7228ace9f05
+8	523	7783927554252012	C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-rel/src/glad.c	150d7228ace9f05
+524	885	7783927555604533	CMakeFiles/glad.dir/src/glad.c.obj	9abd5cf9ded3fa43
+887	963	7783927559252528	glad.lib	e94b39294911ae4
+964	1104	7783927560020815	CMakeFiles/install.util	1fcb060be2a0cebd

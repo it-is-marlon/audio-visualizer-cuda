@@ -1,0 +1,26 @@
+# ninja log v6
+56	598	7783927609959043	src/CMakeFiles/glfw.dir/window.c.obj	967a206a8ea5b360
+67	621	7783927610062307	src/CMakeFiles/glfw.dir/egl_context.c.obj	9e3ff92f8caf56ea
+17	635	7783927609571021	src/CMakeFiles/glfw.dir/init.c.obj	2260695b11ee7432
+74	649	7783927610101156	src/CMakeFiles/glfw.dir/osmesa_context.c.obj	5afe3f6bce55dd91
+39	662	7783927609793288	src/CMakeFiles/glfw.dir/platform.c.obj	2ebb56d81c27e534
+114	757	7783927610539635	src/CMakeFiles/glfw.dir/win32_module.c.obj	4bcec8c00793634c
+23	760	7783927609625258	src/CMakeFiles/glfw.dir/input.c.obj	5707f6da6fabfecd
+106	763	7783927610460782	src/CMakeFiles/glfw.dir/null_joystick.c.obj	25f637fcd8d58c3
+82	767	7783927610203459	src/CMakeFiles/glfw.dir/null_init.c.obj	ca0f00e30ae929ed
+31	771	7783927609702408	src/CMakeFiles/glfw.dir/monitor.c.obj	f7dcd682a8813a2d
+47	775	7783927609838079	src/CMakeFiles/glfw.dir/vulkan.c.obj	e21daa8a12ff8a81
+90	779	7783927610293172	src/CMakeFiles/glfw.dir/null_monitor.c.obj	8b50092dacfed2b8
+99	783	7783927610371767	src/CMakeFiles/glfw.dir/null_window.c.obj	92adf686052339ef
+9	788	7783927609487060	src/CMakeFiles/glfw.dir/context.c.obj	d8df83f666768b2e
+122	858	7783927610603778	src/CMakeFiles/glfw.dir/win32_time.c.obj	2cb42f1fa89e3fca
+663	870	7783927616026883	src/CMakeFiles/glfw.dir/glfw.rc.res	e78638a1271b00cd
+129	894	7783927610669524	src/CMakeFiles/glfw.dir/win32_thread.c.obj	b07148a93dd956cb
+136	1100	7783927610745710	src/CMakeFiles/glfw.dir/win32_init.c.obj	63b22dc6391b6740
+602	1114	7783927615424833	src/CMakeFiles/glfw.dir/win32_joystick.c.obj	a0fbab0ddbfb6ece
+650	1119	7783927615886568	src/CMakeFiles/glfw.dir/wgl_context.c.obj	9ed70d800fbe6aeb
+636	1155	7783927615757918	src/CMakeFiles/glfw.dir/win32_window.c.obj	f31e615ead7023fe
+622	1213	7783927615617031	src/CMakeFiles/glfw.dir/win32_monitor.c.obj	f57e785a4882737a
+1213	1612	7783927625200596	src/glfw3.dll	aee39af325b457ec
+1213	1612	7783927625200596	src/glfw3dll.lib	aee39af325b457ec
+1612	1889	7783927625521740	CMakeFiles/install.util	b5f469298e6e89d3

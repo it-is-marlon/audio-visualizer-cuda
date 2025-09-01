@@ -1,0 +1,8 @@
+# ninja log v6
+6	1771	7783927541602886	include/glad/glad.h	a3a125302e4fdf5b
+6	1771	7783927541602886	src/glad.c	a3a125302e4fdf5b
+6	1771	7783927541602886	C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/include/glad/glad.h	a3a125302e4fdf5b
+6	1771	7783927541602886	C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/blds/glad/x64-windows-dbg/src/glad.c	a3a125302e4fdf5b
+1783	2197	7783927543018907	CMakeFiles/glad.dir/src/glad.c.obj	8e7246589673671d
+2198	2306	7783927547168989	glad.lib	e94b39294911ae4
+2306	2484	7783927548253662	CMakeFiles/install.util	705b3f59f3be3548

@@ -1,0 +1,7 @@
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/lib/glad.lib
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/include/glad/glad.h
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/include/KHR/khrplatform.h
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/lib/cmake/glad/gladConfig.cmake
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/lib/cmake/glad/gladConfigVersion.cmake
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/lib/cmake/glad/gladTargets.cmake
+C:/proyects/audio-visualizer-cuda/vcpkg_installed/vcpkg/pkgs/glad_x64-windows/lib/cmake/glad/gladTargets-release.cmake

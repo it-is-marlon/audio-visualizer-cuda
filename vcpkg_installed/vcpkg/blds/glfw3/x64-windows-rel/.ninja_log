@@ -1,0 +1,26 @@
+# ninja log v6
+107	603	7783927629735421	src/CMakeFiles/glfw.dir/null_joystick.c.obj	6195447bf39e1d3d
+115	622	7783927629818791	src/CMakeFiles/glfw.dir/win32_module.c.obj	d239297b78a76316
+49	637	7783927629157355	src/CMakeFiles/glfw.dir/vulkan.c.obj	68a4b6af9824831d
+15	650	7783927628809054	src/CMakeFiles/glfw.dir/init.c.obj	8ab7ab222b2e98a3
+90	666	7783927629571606	src/CMakeFiles/glfw.dir/null_monitor.c.obj	89a2bcb5bb86be58
+124	682	7783927629914956	src/CMakeFiles/glfw.dir/win32_time.c.obj	ce96f921063a007b
+57	688	7783927629246317	src/CMakeFiles/glfw.dir/window.c.obj	c0cef586e323bd49
+76	694	7783927629424493	src/CMakeFiles/glfw.dir/osmesa_context.c.obj	53a36ba85392234c
+132	700	7783927629977916	src/CMakeFiles/glfw.dir/win32_thread.c.obj	9803ce417c832598
+99	705	7783927629660008	src/CMakeFiles/glfw.dir/null_window.c.obj	d5e1a114ebf84bfb
+39	712	7783927629049365	src/CMakeFiles/glfw.dir/platform.c.obj	bda89aa2fc63e6
+29	717	7783927628963994	src/CMakeFiles/glfw.dir/monitor.c.obj	a20e91641e504748
+84	721	7783927629502551	src/CMakeFiles/glfw.dir/null_init.c.obj	dabbeb656db82231
+9	726	7783927628751664	src/CMakeFiles/glfw.dir/context.c.obj	f35d814ce96e7799
+67	732	7783927629348465	src/CMakeFiles/glfw.dir/egl_context.c.obj	6f68490f2d959e33
+22	776	7783927628877763	src/CMakeFiles/glfw.dir/input.c.obj	eb5b54dbb6fe039e
+667	804	7783927635332306	src/CMakeFiles/glfw.dir/glfw.rc.res	655d97844ec5e096
+140	876	7783927630068436	src/CMakeFiles/glfw.dir/win32_init.c.obj	3121b7efe4a55d4c
+606	1015	7783927634734018	src/CMakeFiles/glfw.dir/win32_joystick.c.obj	a952716cccea23ca
+651	1040	7783927635185868	src/CMakeFiles/glfw.dir/wgl_context.c.obj	dc59a60e6fcdaba2
+622	1043	7783927634890035	src/CMakeFiles/glfw.dir/win32_monitor.c.obj	af8f032db56418dd
+638	1114	7783927635049218	src/CMakeFiles/glfw.dir/win32_window.c.obj	ec812e6a45580377
+1114	1277	7783927641164010	src/glfw3.dll	ecf96fb8b90cd736
+1114	1277	7783927641164010	src/glfw3dll.lib	ecf96fb8b90cd736
+1277	1471	7783927641445543	CMakeFiles/install.util	24b15e8c44dd1067
