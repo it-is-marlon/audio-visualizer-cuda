@@ -23,6 +23,9 @@
     <ClCompile Include="audio_capture.cpp">
       <Filter>cpp</Filter>
     </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>cpp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio_capture.h">
@@ -31,5 +34,11 @@
     <ClInclude Include="fft_visualizer.h">
       <Filter>h</Filter>
     </ClInclude>
+    <ClInclude Include="application.h">
+      <Filter>h</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
   </ItemGroup>
 </Project>

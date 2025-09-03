@@ -117,10 +117,12 @@ cufft.lib;%(AdditionalDependencies)</AdditionalDependencies>
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="application.cpp" />
     <ClCompile Include="audio_capture.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application.h" />
     <ClInclude Include="audio_capture.h" />
     <ClInclude Include="fft_visualizer.h" />
   </ItemGroup>

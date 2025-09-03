@@ -5,21 +5,21 @@
 #include <stdio.h>
 #include <math.h>
 
-const char* vertexShaderSource = R"(
+const char* vertex_shader_source = R"(
 #version 330 core
 layout (location = 0) in vec2 aPos;
 void main() {
    gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
 })";
 
-const char* fragmentShaderSource = R"(
+const char* fragment_shader_source = R"(
 #version 330 core
 out vec4 FragColor;
 void main() {
    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 })";
 
-__global__ void processAudioData(const float* d_input, cufftComplex* d_output, int num_samples) {
+__global__ void process_audio_data(const float* d_input, cufftComplex* d_output, int num_samples) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < num_samples) {
         d_output[idx].x = d_input[idx];
@@ -31,7 +31,7 @@ __global__ void processAudioData(const float* d_input, cufftComplex* d_output, i
     }
 }
 
-__global__ void updateVBO(cufftComplex* d_fft_buffer, float* d_vbo_data, int num_bars) {
+__global__ void update_vbo(cufftComplex* d_fft_buffer, float* d_vbo_data, int num_bars) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < num_bars) {
         float magnitude = sqrtf(d_fft_buffer[idx].x * d_fft_buffer[idx].x + d_fft_buffer[idx].y * d_fft_buffer[idx].y);
@@ -59,18 +59,21 @@ __global__ void updateVBO(cufftComplex* d_fft_buffer, float* d_vbo_data, int num
     }
 }
 
-bool initVisualizer(VisualizerResources* pVisRes, int window_width, int window_height) {
-    if (!pVisRes) return false;
+fft_visualizer::fft_visualizer(int width, int height)
+    : window_width_(width), window_height_(height), program_(0), vao_(0), vbo_(0), plan_(0), cuda_vbo_resource_(nullptr), d_audio_data_old_(nullptr), d_fft_buffer_(nullptr) {
+}
 
-    pVisRes->window_width = window_width;
-    pVisRes->window_height = window_height;
+fft_visualizer::~fft_visualizer() {
+    cleanup();
+}
 
+bool fft_visualizer::initialize() {
     // Crear VAO, VBO y el programa de shaders
-    glGenVertexArrays(1, &pVisRes->vao);
-    glGenBuffers(1, &pVisRes->vbo);
+    glGenVertexArrays(1, &vao_);
+    glGenBuffers(1, &vbo_);
 
-    glBindVertexArray(pVisRes->vao);
-    glBindBuffer(GL_ARRAY_BUFFER, pVisRes->vbo);
+    glBindVertexArray(vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 256 * 6 * 2, NULL, GL_DYNAMIC_DRAW);
 
     // Configurar atributos del vértice
@@ -82,28 +85,28 @@ bool initVisualizer(VisualizerResources* pVisRes, int window_width, int window_h
     glBindVertexArray(0);
 
     // Compilar y vincular shaders
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
+    glCompileShader(vertex_shader);
 
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
+    glCompileShader(fragment_shader);
 
-    pVisRes->program = glCreateProgram();
-    glAttachShader(pVisRes->program, vertexShader);
-    glAttachShader(pVisRes->program, fragmentShader);
-    glLinkProgram(pVisRes->program);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    program_ = glCreateProgram();
+    glAttachShader(program_, vertex_shader);
+    glAttachShader(program_, fragment_shader);
+    glLinkProgram(program_);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 
-    cudaError_t cudaStatus = cudaGraphicsGLRegisterBuffer(&pVisRes->cuda_vbo_resource, pVisRes->vbo, cudaGraphicsMapFlagsNone);
+    cudaError_t cudaStatus = cudaGraphicsGLRegisterBuffer(&cuda_vbo_resource_, vbo_, cudaGraphicsMapFlagsNone);
     if (cudaStatus != cudaSuccess) {
         printf("Error: Fallo al registrar el VBO con CUDA: %s\n", cudaGetErrorString(cudaStatus));
         return false;
     }
 
-    cufftResult cufftStatus = cufftPlan1d(&pVisRes->plan, 512, CUFFT_R2C, 1);
+    cufftResult cufftStatus = cufftPlan1d(&plan_, 512, CUFFT_R2C, 1);
     if (cufftStatus != CUFFT_SUCCESS) {
         printf("Error: Fallo al crear el plan de cuFFT.\n");
         return false;
@@ -112,46 +115,45 @@ bool initVisualizer(VisualizerResources* pVisRes, int window_width, int window_h
     return true;
 }
 
-void processAndDraw(VisualizerResources* pVisRes, float* d_audioData, int bufferSize) {
-    if (!pVisRes || !d_audioData) return;
-
-    static cufftComplex* d_fft_buffer = NULL;
-    if (!d_fft_buffer) {
-        cudaMalloc(&d_fft_buffer, sizeof(cufftComplex) * 512);
+void fft_visualizer::update(float* d_audio_data, int buffer_size) {
+    if (!d_fft_buffer_) {
+        cudaMalloc(&d_fft_buffer_, sizeof(cufftComplex) * 512);
     }
 
     int blockSize = 256;
-    int gridSize = (bufferSize + blockSize - 1) / blockSize;
-    processAudioData << <gridSize, blockSize >> > (d_audioData, d_fft_buffer, bufferSize);
+    int gridSize = (buffer_size + blockSize - 1) / blockSize;
+    process_audio_data << <gridSize, blockSize >> > (d_audio_data, d_fft_buffer_, buffer_size);
 
-    cufftExecR2C(pVisRes->plan, (cufftReal*)d_audioData, d_fft_buffer);
+    cufftExecR2C(plan_, (cufftReal*)d_audio_data, d_fft_buffer_);
 
     float* d_vbo_data = NULL;
     size_t num_bytes;
-    cudaGraphicsMapResources(1, &pVisRes->cuda_vbo_resource, 0);
-    cudaGraphicsResourceGetMappedPointer((void**)&d_vbo_data, &num_bytes, pVisRes->cuda_vbo_resource);
+    cudaGraphicsMapResources(1, &cuda_vbo_resource_, 0);
+    cudaGraphicsResourceGetMappedPointer((void**)&d_vbo_data, &num_bytes, cuda_vbo_resource_);
 
-    int numBars = 256;
-    gridSize = (numBars + blockSize - 1) / blockSize;
-    updateVBO << <gridSize, blockSize >> > (d_fft_buffer, d_vbo_data, numBars);
+    int num_bars = 256;
+    gridSize = (num_bars + blockSize - 1) / blockSize;
+    update_vbo << <gridSize, blockSize >> > (d_fft_buffer_, d_vbo_data, num_bars);
 
-    cudaGraphicsUnmapResources(1, &pVisRes->cuda_vbo_resource, 0);
+    cudaGraphicsUnmapResources(1, &cuda_vbo_resource_, 0);
+}
 
+void fft_visualizer::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(pVisRes->program);
-    glBindVertexArray(pVisRes->vao);
-    glDrawArrays(GL_TRIANGLES, 0, numBars * 6);
+    glUseProgram(program_);
+    glBindVertexArray(vao_);
+    glDrawArrays(GL_TRIANGLES, 0, 256 * 6);
     glBindVertexArray(0);
     glUseProgram(0);
 }
 
-void cleanupVisualizer(VisualizerResources* pVisRes) {
-    if (!pVisRes) return;
-    cufftDestroy(pVisRes->plan);
-    cudaGraphicsUnregisterResource(pVisRes->cuda_vbo_resource);
-    glDeleteProgram(pVisRes->program);
-    glDeleteBuffers(1, &pVisRes->vbo);
-    glDeleteVertexArrays(1, &pVisRes->vao);
+void fft_visualizer::cleanup() {
+    if (d_fft_buffer_) cudaFree(d_fft_buffer_);
+    if (plan_) cufftDestroy(plan_);
+    if (cuda_vbo_resource_) cudaGraphicsUnregisterResource(cuda_vbo_resource_);
+    if (program_) glDeleteProgram(program_);
+    if (vbo_) glDeleteBuffers(1, &vbo_);
+    if (vao_) glDeleteVertexArrays(1, &vao_);
 }

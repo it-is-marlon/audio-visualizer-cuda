@@ -1,105 +1,111 @@
 #include "audio_capture.h"
 #include <stdio.h>
-#include <mmdeviceapi.h>
-#include <audioclient.h>
 #include <Functiondiscoverykeys_devpkey.h>
-#include <cuda_runtime.h>
 #include <comdef.h>
 
-#define REFTIMES_PER_SEC  10000000
-#define REFTIMES_PER_MS   10000
+#define REFTIMES_PER_SEC 10000000
+#define REFTIMES_PER_MS 10000
 
-HRESULT InitializeAudioCapture(AudioResources* pRes) {
-    if (!pRes) return E_POINTER;
+audio_capture::audio_capture()
+    : p_device_(nullptr), p_audio_client_(nullptr), p_capture_client_(nullptr), buffer_size_(0) {
+}
+
+audio_capture::~audio_capture() {
+    cleanup();
+}
+
+bool audio_capture::initialize() {
     HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (FAILED(hr)) return hr;
-
-    IMMDeviceEnumerator* pEnumerator = NULL;
-    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&pEnumerator);
     if (FAILED(hr)) {
-        CoUninitialize();
-        return hr;
+        fprintf(stderr, "Error: Fallo al inicializar COM: %s\n", _com_error(hr).ErrorMessage());
+        return false;
     }
 
-    hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pRes->pDevice);
+    IMMDeviceEnumerator* p_enumerator = NULL;
+    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&p_enumerator);
     if (FAILED(hr)) {
-        pEnumerator->Release();
+        fprintf(stderr, "Error: Fallo al crear IMMDeviceEnumerator: %s\n", _com_error(hr).ErrorMessage());
         CoUninitialize();
-        return hr;
+        return false;
     }
-    pEnumerator->Release();
 
-    hr = pRes->pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&pRes->pAudioClient);
+    hr = p_enumerator->GetDefaultAudioEndpoint(eRender, eConsole, &p_device_);
     if (FAILED(hr)) {
+        fprintf(stderr, "Error: Fallo al obtener el endpoint de audio predeterminado: %s\n", _com_error(hr).ErrorMessage());
+        p_enumerator->Release();
         CoUninitialize();
-        return hr;
+        return false;
+    }
+    p_enumerator->Release();
+
+    hr = p_device_->Activate(__uuidof(IAudioClient), CLSCTX_ALL, NULL, (void**)&p_audio_client_);
+    if (FAILED(hr)) {
+        fprintf(stderr, "Error: Fallo al activar IAudioClient: %s\n", _com_error(hr).ErrorMessage());
+        return false;
     }
 
     WAVEFORMATEX* pwfx = NULL;
-    hr = pRes->pAudioClient->GetMixFormat(&pwfx);
+    hr = p_audio_client_->GetMixFormat(&pwfx);
     if (FAILED(hr)) {
-        CoUninitialize();
-        return hr;
+        fprintf(stderr, "Error: Fallo al obtener el formato de mezcla: %s\n", _com_error(hr).ErrorMessage());
+        return false;
     }
 
-    hr = pRes->pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, REFTIMES_PER_SEC, 0, pwfx, NULL);
+    hr = p_audio_client_->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, REFTIMES_PER_SEC, 0, pwfx, NULL);
     if (FAILED(hr)) {
+        fprintf(stderr, "Error: Fallo al inicializar IAudioClient: %s\n", _com_error(hr).ErrorMessage());
         CoTaskMemFree(pwfx);
-        CoUninitialize();
-        return hr;
+        return false;
     }
 
-    hr = pRes->pAudioClient->GetService(__uuidof(IAudioCaptureClient), (void**)&pRes->pCaptureClient);
+    hr = p_audio_client_->GetService(__uuidof(IAudioCaptureClient), (void**)&p_capture_client_);
     if (FAILED(hr)) {
+        fprintf(stderr, "Error: Fallo al obtener IAudioCaptureClient: %s\n", _com_error(hr).ErrorMessage());
         CoTaskMemFree(pwfx);
-        CoUninitialize();
-        return hr;
+        return false;
     }
 
-    hr = pRes->pAudioClient->Start();
+    hr = p_audio_client_->Start();
     if (FAILED(hr)) {
+        fprintf(stderr, "Error: Fallo al iniciar la captura: %s\n", _com_error(hr).ErrorMessage());
         CoTaskMemFree(pwfx);
-        CoUninitialize();
-        return hr;
+        return false;
     }
 
     CoTaskMemFree(pwfx);
-    return S_OK;
+    return true;
 }
 
-HRESULT CaptureAndTransferAudio(IAudioCaptureClient* pCaptureClient, float** d_audioBuffer, int* bufferSize) {
-    if (!pCaptureClient || !d_audioBuffer || !bufferSize) return E_POINTER;
-
-    UINT32 packetLength = 0;
-    BYTE* pData = NULL;
-    UINT32 numFramesInPacket = 0;
+float* audio_capture::capture_and_transfer_audio() {
+    UINT32 packet_length = 0;
+    BYTE* p_data = NULL;
+    UINT32 num_frames_in_packet = 0;
     DWORD flags = 0;
 
-    HRESULT hr = pCaptureClient->GetNextPacketSize(&packetLength);
-    if (FAILED(hr) || packetLength == 0) return S_OK;
+    HRESULT hr = p_capture_client_->GetNextPacketSize(&packet_length);
+    if (FAILED(hr) || packet_length == 0) return nullptr;
 
-    hr = pCaptureClient->GetBuffer(&pData, &numFramesInPacket, &flags, NULL, NULL);
-    if (FAILED(hr) || numFramesInPacket == 0) return S_OK;
+    hr = p_capture_client_->GetBuffer(&p_data, &num_frames_in_packet, &flags, NULL, NULL);
+    if (FAILED(hr) || num_frames_in_packet == 0) return nullptr;
 
-    float* hostAudioData = new float[numFramesInPacket];
-    for (UINT32 i = 0; i < numFramesInPacket; ++i) {
-        hostAudioData[i] = ((float*)pData)[i];
-    }
-    pCaptureClient->ReleaseBuffer(numFramesInPacket);
+    float* d_audio_buffer = nullptr;
+    cudaMalloc((void**)&d_audio_buffer, sizeof(float) * num_frames_in_packet);
+    cudaMemcpy(d_audio_buffer, p_data, sizeof(float) * num_frames_in_packet, cudaMemcpyHostToDevice);
 
-    *bufferSize = numFramesInPacket;
-    cudaMalloc((void**)d_audioBuffer, sizeof(float) * numFramesInPacket);
-    cudaMemcpy(*d_audioBuffer, hostAudioData, sizeof(float) * numFramesInPacket, cudaMemcpyHostToDevice);
+    p_capture_client_->ReleaseBuffer(num_frames_in_packet);
 
-    delete[] hostAudioData;
-    return S_OK;
+    buffer_size_ = num_frames_in_packet;
+    return d_audio_buffer;
 }
 
-void CleanupAudioCapture(AudioResources* pRes) {
-    if (!pRes) return;
-    if (pRes->pCaptureClient) pRes->pCaptureClient->Release();
-    if (pRes->pAudioClient) pRes->pAudioClient->Stop();
-    if (pRes->pAudioClient) pRes->pAudioClient->Release();
-    if (pRes->pDevice) pRes->pDevice->Release();
+void audio_capture::cleanup() {
+    if (p_capture_client_) p_capture_client_->Release();
+    if (p_audio_client_) p_audio_client_->Stop();
+    if (p_audio_client_) p_audio_client_->Release();
+    if (p_device_) p_device_->Release();
     CoUninitialize();
+}
+
+int audio_capture::get_buffer_size() {
+    return buffer_size_;
 }
